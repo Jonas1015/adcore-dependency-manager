@@ -499,4 +499,4 @@ This dependency manager is designed to be published as a standalone package. To 
 
 ## 📄 License
 
-MIT License - See LICENSE file for details.
+MIT License - See [LICENSE](LICENSE) file for details.
