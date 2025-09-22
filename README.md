@@ -96,28 +96,6 @@ adcore-dm cache --clear
 adcore-dm cache --clear --module auth
 ```
 
-## 🐳 Docker Usage
-
-**Simple, Cache-Friendly Docker Builds:**
-
-```dockerfile
-FROM python:3.11-slim
-
-# Install the dependency manager
-RUN pip install adcore-dependency-manager[resolver]
-
-# Copy requirements files
-COPY requirements*.txt ./
-
-# Install with intelligent caching (only resolves when requirements change)
-RUN adcore-dm install
-
-# Copy your application
-COPY . .
-
-CMD ["python", "app.py"]
-```
-
 ## 🚀 Why Use This Over Pip?
 
 **Perfect for Docker builds and complex dependency trees:**
@@ -387,22 +365,6 @@ def custom_installer(resolved_packages: dict, installed_packages: set) -> bool:
 dm = DependencyManager(install_hook=custom_installer)
 ```
 
-### Any App Integration Example
-```python
-from dependency_manager import DependencyManager
-
-# Another system can inject its own logger and hooks
-dm = DependencyManager(
-    logger=custom_logger,
-    pre_resolve_hook=adcore_pre_resolve,
-    post_resolve_hook=adcore_post_resolve,
-    install_hook=adcore_installer
-)
-
-# Use as normal - hooks will be called automatically
-await dm.resolve_dependencies()
-```
-
 ## Integration Examples
 
 ### FastAPI Integration
@@ -462,6 +424,22 @@ dm = DependencyManager(
 with app.app_context():
     # Resolve dependencies
     await dm.resolve_dependencies()
+```
+
+### Any Other App Integration Example
+```python
+from dependency_manager import DependencyManager
+
+# Another system can inject its own logger and hooks
+dm = DependencyManager(
+    logger=custom_logger,
+    pre_resolve_hook=adcore_pre_resolve,
+    post_resolve_hook=adcore_post_resolve,
+    install_hook=adcore_installer
+)
+
+# Use as normal - hooks will be called automatically
+await dm.resolve_dependencies()
 ```
 
 ## Architecture
