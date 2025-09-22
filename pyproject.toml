@@ -9,7 +9,7 @@ description = "Intelligent, incremental dependency resolution and caching for Py
 authors = [
     {name = "AdCore API Platform", email = "contact@adcore-api.com"}
 ]
-readme = "src/package/README.md"
+readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 dependencies = [
@@ -75,7 +75,8 @@ lint = [
 ]
 
 [project.scripts]
-dependency-manager = "package.cli:main"
+adcore-dependency-manager = "package.cli:main"
+adcore-dm = "package.cli:main"
 dm = "package.cli:main"
 
 [tool.setuptools]
