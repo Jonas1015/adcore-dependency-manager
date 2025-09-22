@@ -62,6 +62,7 @@ RUN adcore-dm install
 ## 💻 Command Reference
 
 **Available commands:** `adcore-dependency-manager`, `adcore-dm`, or `dm`
+One of these can be used. A good example can be `dm install -r requirements.txt` or `adcore-dependency-manager install -r requirements.txt`
 
 ### Install Dependencies
 ```bash
