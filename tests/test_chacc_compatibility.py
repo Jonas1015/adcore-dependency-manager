@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.insert(0, 'src')
 
-async def test_chacc_compatibility():
+def test_chacc_compatibility():
     """Test that ChaCC can still use the dependency manager."""
     try:
         from package import chacc as dm
@@ -48,6 +48,5 @@ async def test_chacc_compatibility():
         return False
 
 if __name__ == "__main__":
-    import asyncio
-    success = asyncio.run(test_chacc_compatibility())
+    success = test_chacc_compatibility()
     sys.exit(0 if success else 1)

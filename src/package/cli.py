@@ -36,12 +36,10 @@ def cmd_install(args):
         requirements = {args.requirements: Path(args.requirements).read_text()}
         asyncio.run(dm.resolve_dependencies(requirements))
     elif args.packages:
-        # Install specific packages
         print(f"Installing packages: {', '.join(args.packages)}...")
         requirements = {"cli": "\n".join(args.packages)}
         asyncio.run(dm.resolve_dependencies(requirements))
     else:
-        # Auto-discover and install
         print("Auto-discovering and installing requirements...")
         asyncio.run(dm.resolve_dependencies())
 
@@ -112,7 +110,6 @@ def create_parser():
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Install command
     install_parser = subparsers.add_parser(
         "install",
         help="Install packages with dependency resolution"
@@ -128,7 +125,6 @@ def create_parser():
     )
     install_parser.set_defaults(func=cmd_install)
 
-    # Resolve command
     resolve_parser = subparsers.add_parser(
         "resolve",
         help="Resolve dependencies without installing"
@@ -149,7 +145,6 @@ def create_parser():
     )
     resolve_parser.set_defaults(func=cmd_resolve)
 
-    # Cache command
     cache_parser = subparsers.add_parser(
         "cache",
         help="Manage dependency cache"

@@ -37,10 +37,10 @@ def main():
 
     print("✅ pyproject.toml found")
 
-    # Test 2: Check package structure
     package_files = [
         "src/package/__init__.py",
-        "src/package/dependency_manager.py",
+        "src/package/chacc.py",
+        "src/package/cli.py",
         "src/package/README.md",
         "LICENSE"
     ]
@@ -52,7 +52,6 @@ def main():
             print(f"❌ {file_path} missing")
             return False
 
-    # Test 3: Try to import the package
     try:
         sys.path.insert(0, 'src')
         from package import DependencyManager, __version__
@@ -61,7 +60,6 @@ def main():
         print(f"❌ Package import failed: {e}")
         return False
 
-    # Test 4: Test DependencyManager instantiation
     try:
         dm = DependencyManager()
         print("✅ DependencyManager instantiation successful")
@@ -69,14 +67,12 @@ def main():
         print(f"❌ DependencyManager instantiation failed: {e}")
         return False
 
-    # Test 5: Try building (if build tools available)
     try:
         import build
         print("✅ build module available")
         if run_command("python -m build --help", "Check build command availability"):
             if run_command("python -m build", "Build package"):
                 print("✅ Package builds successfully")
-                # Check if dist directory was created
                 if os.path.exists("dist"):
                     dist_files = os.listdir("dist")
                     print(f"✅ Distribution files created: {dist_files}")
