@@ -11,7 +11,7 @@ sys.path.insert(0, 'src')
 async def test_chacc_compatibility():
     """Test that ChaCC can still use the dependency manager."""
     try:
-        from package import dependency_manager as dm
+        from package import chacc as dm
 
         invalidate_module_cache = dm.invalidate_module_cache
         re_resolve_dependencies = dm.re_resolve_dependencies

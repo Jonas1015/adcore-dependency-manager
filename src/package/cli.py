@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from .dependency_manager import DependencyManager
+from .chacc import DependencyManager
 
 
 def setup_logging(verbose: bool = False):

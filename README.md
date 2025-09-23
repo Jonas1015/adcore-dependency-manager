@@ -45,7 +45,7 @@ cdm cache --info
 
 ### Python Code
 ```python
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 dm = DependencyManager()
 await dm.resolve_dependencies()
@@ -283,7 +283,7 @@ DependencyManager(
 For advanced use in applications:
 
 ```python
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 # Basic usage
 dm = DependencyManager()
@@ -307,7 +307,7 @@ await dm.resolve_dependencies()
 ### Custom Logger Integration
 ```python
 import logging
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 logger = logging.getLogger("myapp")
 dm = DependencyManager(logger=logger)
@@ -371,7 +371,7 @@ dm = DependencyManager(install_hook=custom_installer)
 ### FastAPI Integration
 ```python
 from fastapi import FastAPI
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 app = FastAPI()
 
@@ -397,7 +397,7 @@ await dm.resolve_dependencies(modules)
 ### Django Integration
 ```python
 # In Django settings.py or apps.py
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 # Initialize with Django-specific paths
 dm = DependencyManager(
@@ -412,7 +412,7 @@ await dm.resolve_dependencies()
 ### Flask Integration
 ```python
 from flask import Flask
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 app = Flask(__name__)
 
@@ -429,7 +429,7 @@ with app.app_context():
 
 ### Any Other App Integration Example
 ```python
-from dependency_manager import DependencyManager
+from chacc import DependencyManager
 
 # Another system can inject its own logger and hooks
 dm = DependencyManager(
