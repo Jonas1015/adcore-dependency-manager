@@ -27,7 +27,7 @@ def run_command(cmd, description):
 
 def main():
     """Test the package build process."""
-    print("🚀 Testing AdCore Dependency Manager Package Build")
+    print("🚀 Testing ChaCC Dependency Manager Package Build")
     print("=" * 60)
 
     # Test 1: Check if pyproject.toml exists

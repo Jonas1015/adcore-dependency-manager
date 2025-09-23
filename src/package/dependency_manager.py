@@ -16,7 +16,7 @@ Features:
 - Pure Python implementation with no external dependencies
 
 The package can be extended with custom hooks for integration with other systems
-like AdCore API Platform, allowing custom logging, installation logic, and
+like ChaCC API Platform, allowing custom logging, installation logic, and
 pre/post-processing of dependency resolution.
 """
 

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Test script to verify AdCore API compatibility with the new dependency manager package.
-This simulates how AdCore uses the dependency manager.
+Test script to verify ChaCC API compatibility with the new dependency manager package.
+This simulates how ChaCC uses the dependency manager.
 """
 
 import sys
 import os
 sys.path.insert(0, 'src')
 
-async def test_adcore_compatibility():
-    """Test that AdCore can still use the dependency manager."""
+async def test_chacc_compatibility():
+    """Test that ChaCC can still use the dependency manager."""
     try:
-        from src.package import dependency_manager as dm
+        from package import dependency_manager as dm
 
         invalidate_module_cache = dm.invalidate_module_cache
         re_resolve_dependencies = dm.re_resolve_dependencies
         DependencyManager = dm.DependencyManager
-        print("✅ AdCore imports successful")
+        print("✅ ChaCC imports successful")
 
         assert callable(invalidate_module_cache), "invalidate_module_cache should be callable"
         assert callable(re_resolve_dependencies), "re_resolve_dependencies should be callable"
@@ -49,5 +49,5 @@ async def test_adcore_compatibility():
 
 if __name__ == "__main__":
     import asyncio
-    success = asyncio.run(test_adcore_compatibility())
+    success = asyncio.run(test_chacc_compatibility())
     sys.exit(0 if success else 1)

@@ -1,5 +1,5 @@
 """
-AdCore Dependency Manager - Intelligent dependency resolution for Python applications.
+ChaCC Dependency Manager - Intelligent dependency resolution for Python applications.
 
 This package provides incremental dependency resolution, caching, and intelligent
 package installation for modular Python applications.

@@ -130,7 +130,7 @@ dmypy.json
 
 # Dependency Manager Cache
 .dependency_cache/
-.adcore_cache/
+.chacc_cache/
 
 # IDEs
 .vscode/

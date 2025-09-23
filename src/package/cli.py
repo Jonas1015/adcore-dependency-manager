@@ -95,7 +95,7 @@ def create_parser():
     """Create the argument parser."""
     parser = argparse.ArgumentParser(
         description="Intelligent dependency management with caching",
-        prog="dependency-manager"
+        prog="cdm"
     )
 
     parser.add_argument(

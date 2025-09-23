@@ -1,4 +1,4 @@
-# AdCore Dependency Manager
+# ChaCC Dependency Manager
 
 **Smart dependency resolution with intelligent caching** - 20x faster than pip for repeated installs.
 
@@ -20,13 +20,13 @@
 
 ```bash
 # Basic installation (library only)
-pip install adcore-dependency-manager
+pip install chacc-dependency-manager
 
 # With CLI commands (recommended)
-pip install adcore-dependency-manager[resolver]
+pip install chacc-dependency-manager[resolver]
 
 # Full development setup
-pip install adcore-dependency-manager[full]
+pip install chacc-dependency-manager[full]
 ```
 
 ## 🚀 Quick Usage
@@ -34,13 +34,13 @@ pip install adcore-dependency-manager[full]
 ### Command Line (Easiest)
 ```bash
 # Install from requirements.txt
-adcore-dm install -r requirements.txt
+cdm install -r requirements.txt
 
 # Install specific packages
-adcore-dm install fastapi uvicorn
+cdm install fastapi uvicorn
 
 # Check cache status
-adcore-dm cache --info
+cdm cache --info
 ```
 
 ### Python Code
@@ -54,54 +54,54 @@ await dm.resolve_dependencies()
 ### Docker
 ```dockerfile
 FROM python:3.11-slim
-RUN pip install adcore-dependency-manager[resolver]
+RUN pip install chacc-dependency-manager[resolver]
 COPY requirements.txt .
-RUN adcore-dm install
+RUN cdm install
 ```
 
 ## 💻 Command Reference
 
-**Available commands:** `adcore-dependency-manager`, `adcore-dm`, or `dm`
-One of these can be used. A good example can be `dm install -r requirements.txt` or `adcore-dependency-manager install -r requirements.txt`
+**Available commands:** `chacc-dependency-manager`, `chacc-dm`, or `cdm`
+One of these can be used. A good example can be `cdm install -r requirements.txt` or `chacc-dependency-manager install -r requirements.txt`
 
 ### Install Dependencies
 ```bash
 # From requirements file
-adcore-dm install -r requirements.txt
+cdm install -r requirements.txt
 
 # Specific packages
-adcore-dm install fastapi uvicorn sqlalchemy
+cdm install fastapi uvicorn sqlalchemy
 
 # Auto-discover all requirements
-adcore-dm install
+cdm install
 ```
 
 ### Resolve Only (No Install)
 ```bash
 # Check what would be installed
-adcore-dm resolve
+cdm resolve
 
 # Specific file
-adcore-dm resolve -r requirements-dev.txt
+cdm resolve -r requirements-dev.txt
 ```
 
 ### Cache Management
 ```bash
 # View cache info
-adcore-dm cache --info
+cdm cache --info
 
 # Clear all cache
-adcore-dm cache --clear
+cdm cache --clear
 
 # Clear specific module
-adcore-dm cache --clear --module auth
+cdm cache --clear --module auth
 ```
 
 ## 🚀 Why Use This Over Pip?
 
 **Perfect for Docker builds and complex dependency trees:**
 
-| Scenario | pip install | adcore-dependency-manager | Speed Improvement |
+| Scenario | pip install | chacc-dependency-manager | Speed Improvement |
 |----------|-------------|---------------------------|-------------------|
 | **Docker rebuild (no changes)** | 45s | <2s | **22x faster** ⚡ |
 | **CI/CD pipeline** | 60s | 3s | **20x faster** ⚡ |
@@ -164,13 +164,13 @@ myapp/
 FROM python:3.11-slim
 
 # Install the dependency manager
-RUN pip install adcore-dependency-manager[resolver]
+RUN pip install chacc-dependency-manager[resolver]
 
 # Copy requirements files
 COPY requirements*.txt ./
 
 # Install with intelligent caching (only resolves when requirements change)
-RUN adcore-dm install
+RUN cdm install
 
 # Copy your application
 COPY . .
@@ -192,7 +192,7 @@ CMD ["python", "app.py"]
       deps-
 
 - name: Install dependencies
-  run: adcore-dm install
+  run: cdm install
 ```
 
 ### Cache Persistence Strategies
@@ -202,16 +202,16 @@ CMD ["python", "app.py"]
 # Mount cache volume
 docker run -v $(pwd)/.dependency_cache:/app/.dependency_cache \
   -v $(pwd):/app \
-  myapp adcore-dm install
+  myapp cdm install
 ```
 
 #### 2. **Multi-Stage Builds**
 ```dockerfile
 # Stage 1: Resolve dependencies
 FROM python:3.11-slim AS deps
-RUN pip install adcore-dependency-manager[resolver]
+RUN pip install chacc-dependency-manager[resolver]
 COPY requirements*.txt ./
-RUN adcore-dm install
+RUN cdm install
 
 # Stage 2: Runtime
 FROM python:3.11-slim
@@ -222,7 +222,7 @@ COPY --from=deps /root/.dependency_cache /app/.dependency_cache
 #### 3. **Cache Warming**
 ```bash
 # Pre-warm cache for common scenarios
-adcore-dm install pip-tools setuptools pytest pytest-cov black flake8 mypy
+cdm install pip-tools setuptools pytest pytest-cov black flake8 mypy
 ```
 
 ### Cache Invalidation
@@ -236,7 +236,7 @@ For forced rebuilds in pipelines:
 ```bash
 # Force clean install
 rm -rf .dependency_cache
-adcore-dm install
+cdm install
 ```
 
 ### Best Practices
@@ -434,9 +434,9 @@ from dependency_manager import DependencyManager
 # Another system can inject its own logger and hooks
 dm = DependencyManager(
     logger=custom_logger,
-    pre_resolve_hook=adcore_pre_resolve,
-    post_resolve_hook=adcore_post_resolve,
-    install_hook=adcore_installer
+    pre_resolve_hook=chacc_pre_resolve,
+    post_resolve_hook=chacc_post_resolve,
+    install_hook=chacc_installer
 )
 
 # Use as normal - hooks will be called automatically
