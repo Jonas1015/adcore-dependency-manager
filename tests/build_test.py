@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script to verify the package builds correctly with pyproject.toml
 """
@@ -30,7 +29,6 @@ def main():
     print("🚀 Testing ChaCC Dependency Manager Package Build")
     print("=" * 60)
 
-    # Test 1: Check if pyproject.toml exists
     if not os.path.exists("pyproject.toml"):
         print("❌ pyproject.toml not found")
         return False
@@ -38,10 +36,10 @@ def main():
     print("✅ pyproject.toml found")
 
     package_files = [
-        "src/package/__init__.py",
-        "src/package/chacc.py",
-        "src/package/cli.py",
-        "src/package/README.md",
+        "src/chacc/__init__.py",
+        "src/chacc/chacc.py",
+        "src/chacc/cli.py",
+        "src/chacc/README.md",
         "LICENSE"
     ]
 
@@ -54,7 +52,7 @@ def main():
 
     try:
         sys.path.insert(0, 'src')
-        from package import DependencyManager, __version__
+        from chacc import DependencyManager, __version__
         print(f"✅ Package imports successfully (version: {__version__})")
     except ImportError as e:
         print(f"❌ Package import failed: {e}")

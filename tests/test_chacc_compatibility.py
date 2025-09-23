@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script to verify ChaCC API compatibility with the new dependency manager package.
 This simulates how ChaCC uses the dependency manager.
@@ -11,7 +10,7 @@ sys.path.insert(0, 'src')
 def test_chacc_compatibility():
     """Test that ChaCC can still use the dependency manager."""
     try:
-        from package import chacc as dm
+        from chacc import chacc as dm
 
         invalidate_module_cache = dm.invalidate_module_cache
         re_resolve_dependencies = dm.re_resolve_dependencies

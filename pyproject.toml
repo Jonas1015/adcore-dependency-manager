@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chacc-dependency-manager"
-version = "1.0.1"
+version = "1.0.2"
 description = "Intelligent, incremental dependency resolution and caching for Python applications"
 authors = [
     {name = "ChaCC API Platform", email = "contact@chacc-api.com"}
@@ -75,17 +75,17 @@ lint = [
 ]
 
 [project.scripts]
-chacc-dependency-manager = "package.cli:main"
-chacc-dm = "package.cli:main"
-cdm = "package.cli:main"
+chacc-dependency-manager = "chacc.cli:main"
+chacc-dm = "chacc.cli:main"
+cdm = "chacc.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["package"]
+packages = ["chacc"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-package = ["*.md"]
+chacc = ["*.md"]
 
 [tool.black]
 line-length = 88
