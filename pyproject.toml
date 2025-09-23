@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chacc-dependency-manager"
-version = "1.0.0"
+version = "1.0.1"
 description = "Intelligent, incremental dependency resolution and caching for Python applications"
 authors = [
     {name = "ChaCC API Platform", email = "contact@chacc-api.com"}
