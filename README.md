@@ -445,11 +445,24 @@ await dm.resolve_dependencies()
 
 ## Architecture
 
+### Code Structure
+
+The package is organized into focused modules for better maintainability:
+
+```
+src/chacc/
+├── __init__.py      # Package initialization and public API
+├── manager.py       # DependencyManager class and core business logic
+├── chacc.py         # Convenience functions and API wrappers
+├── utils.py         # Utility functions, logging, and hash calculations
+└── cli.py           # Command-line interface
+```
+
 ### Cache Structure
 
 ```json
 {
-  "module_caches": {
+  "requirements_caches": {
     "authentication": {
       "hash": "abc123...",
       "packages": {"fastapi": "==0.116.1", "pydantic": "==2.5.0"},
@@ -461,7 +474,6 @@ await dm.resolve_dependencies()
       "last_updated": "2024-01-01T12:05:00"
     }
   },
-  "backbone_hash": "ghi789...",
   "combined_hash": "jkl012...",
   "resolved_packages": {
     "fastapi": "==0.116.1",
