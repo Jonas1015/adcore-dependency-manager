@@ -15,8 +15,7 @@ Features:
 - Works with any Python framework (FastAPI, Django, Flask, etc.)
 - Pure Python implementation with no external dependencies
 
-The package can be extended with custom hooks for integration with other systems
-like ChaCC API Platform, allowing custom logging, installation logic, and
+The package can be extended with custom hooks for integration with other systems, allowing custom logging, installation logic, and
 pre/post-processing of dependency resolution.
 """
 
@@ -26,10 +25,11 @@ import hashlib
 import subprocess
 import logging
 import glob
+import sys
 from typing import Dict, Set, Optional, Callable, Any, List
 
 
-default_logger = logging.getLogger('dependency_manager')
+default_logger = logging.getLogger('chacc-dm')
 default_logger.setLevel(logging.INFO)
 if not default_logger.handlers:
     handler = logging.StreamHandler()
@@ -40,7 +40,7 @@ if not default_logger.handlers:
 
 class DependencyManager:
     """
-    Manages Python package dependencies for modular applications.
+    Manages Python package dependencies for modular applications using on top of pip.
 
     Provides incremental dependency resolution, caching, and intelligent
     package installation to optimize performance in development and production.
@@ -122,7 +122,7 @@ class DependencyManager:
         """Get set of currently installed packages."""
         try:
             result = subprocess.run([
-                'python', '-m', 'pip', 'list', '--format=freeze'
+                sys.executable, '-m', 'pip', 'list', '--format=freeze'
             ], capture_output=True, text=True, timeout=30)
 
             if result.returncode == 0:
@@ -156,7 +156,7 @@ class DependencyManager:
                 f.write(requirements_content)
 
             result = subprocess.run([
-                'python', '-m', 'piptools', 'compile',
+                sys.executable, '-m', 'piptools', 'compile',
                 '--output-file', f"{temp_req_file}.lock",
                 '--allow-unsafe',
                 temp_req_file
@@ -241,7 +241,7 @@ class DependencyManager:
                 for i in range(0, len(packages_to_install), batch_size):
                     batch = packages_to_install[i:i + batch_size]
                     result = subprocess.run([
-                        'python', '-m', 'pip', 'install', '--quiet'
+                        sys.executable, '-m', 'pip', 'install', '--quiet'
                     ] + batch, capture_output=True, text=True, timeout=300)
 
                     if result.returncode != 0:
@@ -356,11 +356,19 @@ class DependencyManager:
                     self.logger.info(f"Requirements '{req_name}' have changed")
 
             if not requirements_needing_resolution:
-                self.logger.info("Using cached dependency resolution (no changes detected)")
                 cached_packages = cache.get('resolved_packages', {})
                 if cached_packages:
                     installed_packages = self.get_installed_packages()
-                    self.install_missing_packages(cached_packages, installed_packages)
+                    missing_packages = []
+                    for package_name in cached_packages.keys():
+                        if package_name.lower() not in installed_packages:
+                            missing_packages.append(package_name)
+
+                    if not missing_packages:
+                        self.logger.info("All cached packages are already installed (no changes detected)")
+                    else:
+                        self.logger.info(f"Using cached dependency resolution but {len(missing_packages)} packages are missing, installing...")
+                        self.install_missing_packages(cached_packages, installed_packages)
                 else:
                     self.logger.warning("Cache is empty, performing full resolution")
                     requirements_needing_resolution = requirements_to_process
@@ -377,7 +385,7 @@ class DependencyManager:
                     req_caches[req_name] = {
                         'hash': current_req_hashes.get(req_name),
                         'packages': req_packages if req_content.strip() else {},
-                        'last_updated': str(os.path.getmtime(os.path.join(self.cache_dir, '..')))  # Rough timestamp
+                        'last_updated': str(os.path.getmtime(os.path.join(self.cache_dir, '..')))
                     }
 
                 cached_packages = {}
