@@ -5,8 +5,8 @@ This package provides incremental dependency resolution, caching, and intelligen
 package installation for modular Python applications.
 """
 
+from .manager import DependencyManager
 from .chacc import (
-    DependencyManager,
     re_resolve_dependencies,
     invalidate_dependency_cache,
     invalidate_module_cache,
