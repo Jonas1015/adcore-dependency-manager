@@ -32,6 +32,11 @@ Example:
 """
 
 from .manager import DependencyManager
+from .utils import (
+    calculate_module_hash,
+    calculate_combined_requirements_hash,
+    get_installed_packages
+)
 import logging
 from typing import Optional, Callable, Dict, Set, List
 from dataclasses import dataclass
