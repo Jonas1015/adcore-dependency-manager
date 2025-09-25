@@ -32,11 +32,6 @@ Example:
 """
 
 from .manager import DependencyManager
-from .utils import (
-    calculate_module_hash,
-    calculate_combined_requirements_hash,
-    get_installed_packages
-)
 import logging
 from typing import Optional, Callable, Dict, Set, List
 from dataclasses import dataclass
@@ -64,14 +59,14 @@ class Config:
 
 dependency_manager = DependencyManager()
 
-def load_dependency_cache(config: Optional[Config] = None) -> dict:
+def load_dependency_cache(config: Optional[Config] = None) -> Dict:
     """Load dependency cache from file."""
     if config:
         dm = config.create_manager()
         return dm.load_cache()
     return dependency_manager.load_cache()
 
-def save_dependency_cache(cache_data: dict, config: Optional[Config] = None):
+def save_dependency_cache(cache_data: Dict, config: Optional[Config] = None):
     """Save dependency cache to file."""
     if config:
         dm = config.create_manager()
@@ -83,21 +78,21 @@ def resolve_module_dependencies(
     module_name: str,
     requirements_content: str,
     config: Optional[Config] = None
-) -> dict[str, str]:
+) -> Dict[str, str]:
     """Resolve dependencies for a specific module."""
     dm = config.create_manager() if config else dependency_manager
     return dm.resolve_module_dependencies(module_name, requirements_content)
 
 
-def merge_resolved_packages(*package_dicts: dict[str, str], config: Optional[Config] = None) -> dict[str, str]:
+def merge_resolved_packages(*package_dicts: Dict[str, str], config: Optional[Config] = None) -> Dict[str, str]:
     """Merge multiple resolved package dictionaries, resolving conflicts."""
     dm = config.create_manager() if config else dependency_manager
     return dm.merge_resolved_packages(*package_dicts)
 
 
 def install_missing_packages(
-    resolved_packages: dict[str, str],
-    installed_packages: set[str],
+    resolved_packages: Dict[str, str],
+    installed_packages: Set[str],
     config: Optional[Config] = None
 ):
     """Install only packages that are not already installed."""
@@ -118,9 +113,9 @@ def invalidate_module_cache(module_name: str, config: Optional[Config] = None):
 
 
 async def re_resolve_dependencies(
-    modules_requirements: dict[str, str] | None = None,
+    modules_requirements: Optional[Dict[str, str]] = None,
     requirements_file_pattern: str = "requirements.txt",
-    search_dirs: list[str] | None = None,
+    search_dirs: Optional[List[str]] = None,
     config: Optional[Config] = None
 ):
     """Re-resolve and reinstall all dependencies with full caching support."""

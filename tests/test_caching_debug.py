@@ -3,7 +3,6 @@ Debug script to analyze caching issues with package detection.
 """
 
 import sys
-import os
 sys.path.insert(0, 'src')
 
 from chacc.utils import get_installed_packages, canonicalize_name

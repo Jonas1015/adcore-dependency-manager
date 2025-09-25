@@ -3,7 +3,6 @@ Test script to demonstrate the cleaner Config-based API.
 """
 
 import sys
-import os
 import logging
 import asyncio
 sys.path.insert(0, 'src')

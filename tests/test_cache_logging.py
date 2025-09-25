@@ -3,7 +3,6 @@ Test script to check cache validation logging.
 """
 
 import sys
-import os
 import logging
 import asyncio
 sys.path.insert(0, 'src')

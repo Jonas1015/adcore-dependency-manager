@@ -4,7 +4,6 @@ This simulates how ChaCC uses the dependency manager.
 """
 
 import sys
-import os
 sys.path.insert(0, 'src')
 
 def test_chacc_compatibility():

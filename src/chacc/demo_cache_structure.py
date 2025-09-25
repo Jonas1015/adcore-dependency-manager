@@ -3,7 +3,6 @@ Show ChaCC's module-based cache structure.
 """
 
 import sys
-import json
 sys.path.insert(0, 'src')
 
 from chacc import DependencyManager

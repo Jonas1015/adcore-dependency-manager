@@ -3,7 +3,6 @@ Demonstrate how ChaCC separates dependencies by modules.
 """
 
 import sys
-import json
 sys.path.insert(0, 'src')
 
 from chacc import DependencyManager

@@ -3,7 +3,6 @@ Test script to demonstrate enhanced API with full parameter support.
 """
 
 import sys
-import os
 import logging
 import asyncio
 sys.path.insert(0, 'src')
@@ -11,7 +10,6 @@ sys.path.insert(0, 'src')
 from chacc import (
     re_resolve_dependencies,
     resolve_module_dependencies,
-    install_missing_packages,
     invalidate_dependency_cache
 )
 

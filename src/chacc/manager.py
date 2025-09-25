@@ -10,7 +10,7 @@ import glob
 import logging
 import subprocess
 import sys
-from typing import Dict, Set, Optional, Callable, Any, List
+from typing import Dict, Set, Optional, Callable, List
 
 from .utils import (
     default_logger,
