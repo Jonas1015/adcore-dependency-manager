@@ -10,9 +10,15 @@ import subprocess
 import sys
 from typing import Set
 
+try:
+    from packaging.utils import canonicalize_name
+except ImportError:
+    def canonicalize_name(name: str) -> str:
+        return name.replace('_', '-').lower()
+
 
 default_logger = logging.getLogger('dependency_manager')
-default_logger.setLevel(logging.INFO)
+default_logger.setLevel(logging.DEBUG)
 if not default_logger.handlers:
     handler = logging.StreamHandler()
     formatter = logging.Formatter('%(levelname)s: %(name)s - %(message)s')
@@ -34,7 +40,7 @@ def calculate_combined_requirements_hash(module_hashes: dict[str, str]) -> str:
 
 
 def get_installed_packages() -> Set[str]:
-    """Get set of currently installed packages."""
+    """Get set of currently installed packages (canonicalized names)."""
     try:
         result = subprocess.run([
             sys.executable, '-m', 'pip', 'list', '--format=freeze'
@@ -44,8 +50,9 @@ def get_installed_packages() -> Set[str]:
             packages = set()
             for line in result.stdout.strip().split('\n'):
                 if '==' in line:
-                    package_name = line.split('==')[0].lower()
-                    packages.add(package_name)
+                    package_name = line.split('==')[0]
+                    canonical_name = canonicalize_name(package_name)
+                    packages.add(canonical_name)
             return packages
         else:
             default_logger.warning(f"Failed to get installed packages: {result.stderr}")

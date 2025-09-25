@@ -16,7 +16,8 @@ from .utils import (
     default_logger,
     calculate_module_hash,
     calculate_combined_requirements_hash,
-    get_installed_packages
+    get_installed_packages,
+    canonicalize_name
 )
 
 
@@ -48,7 +49,7 @@ class DependencyManager:
         install_hook: Optional[Callable[[Dict[str, str], Set[str]], bool]] = None
     ):
         """Initialize the dependency manager with configurable paths and hooks."""
-        self.cache_dir = cache_dir or ".dependency_cache"
+        self.cache_dir = os.path.abspath(cache_dir or ".dependency_cache")
         self.cache_file = os.path.join(self.cache_dir, "dependency_cache.json")
 
         self.logger = logger or default_logger
@@ -65,15 +66,15 @@ class DependencyManager:
             try:
                 with open(self.cache_file, 'r') as f:
                     cache = json.load(f)
-                    if 'module_caches' not in cache:
-                        cache['module_caches'] = {}
+                    if 'requirements_caches' not in cache:
+                        cache['requirements_caches'] = {}
                     if 'combined_hash' not in cache:
                         cache['combined_hash'] = None
                     return cache
             except (json.JSONDecodeError, IOError) as e:
                 self.logger.warning(f"Failed to load dependency cache: {e}")
         return {
-            'module_caches': {},
+            'requirements_caches': {},
             'backbone_hash': None,
             'combined_hash': None,
             'resolved_packages': {},
@@ -93,7 +94,7 @@ class DependencyManager:
         """Invalidate the entire dependency cache."""
         try:
             cache_data = {
-                'module_caches': {},
+                'requirements_caches': {},
                 'backbone_hash': None,
                 'combined_hash': None,
                 'resolved_packages': {},
@@ -114,8 +115,8 @@ class DependencyManager:
         """Invalidate cache for a specific module."""
         try:
             cache = self.load_cache()
-            if module_name in cache.get('module_caches', {}):
-                del cache['module_caches'][module_name]
+            if module_name in cache.get('requirements_caches', {}):
+                del cache['requirements_caches'][module_name]
                 cache['combined_hash'] = None
                 self.save_cache(cache)
                 self.logger.info(f"Cache invalidated for module: {module_name}")
@@ -208,16 +209,24 @@ class DependencyManager:
                 self.logger.warning(f"Custom installation hook failed: {e}, falling back to default")
 
         packages_to_install = []
+        packages_to_skip = []
 
         for package_name, version_spec in resolved_packages.items():
-            package_name_lower = package_name.lower()
-            if package_name_lower not in installed_packages:
+            canonical_name = canonicalize_name(package_name)
+            if canonical_name not in installed_packages:
                 packages_to_install.append(f"{package_name}{version_spec}")
             else:
-                self.logger.debug(f"Package {package_name} already installed, skipping")
+                packages_to_skip.append(f"{package_name}")
+
+        if packages_to_skip:
+            self.logger.info("Skipped Packages:")
+            for package_name in packages_to_skip:
+                self.logger.info(f"     ✓ {package_name}")
 
         if packages_to_install:
             self.logger.info(f"Installing {len(packages_to_install)} missing packages...")
+            for package_name in packages_to_install:
+                self.logger.info(f"     ✓ {package_name}")
             try:
                 batch_size = 50
                 for i in range(0, len(packages_to_install), batch_size):
@@ -295,6 +304,10 @@ class DependencyManager:
 
             current_req_hashes = {}
             requirements_needing_resolution = []
+            cache_was_used = False
+            packages_were_installed = False
+            cached_packages = {}
+            missing_packages = []
 
             for req_name, req_content in requirements_to_process:
                 req_hash = calculate_module_hash(req_name, req_content)
@@ -307,23 +320,31 @@ class DependencyManager:
             if not requirements_needing_resolution:
                 cached_packages = cache.get('resolved_packages', {})
                 if cached_packages:
+                    cache_was_used = True
+                    self.logger.debug(f"Checking {len(cached_packages)} cached packages against installed packages")
                     installed_packages = get_installed_packages()
-                    # Check if all cached packages are actually installed
+                    self.logger.debug(f"Found {len(installed_packages)} installed packages")
                     missing_packages = []
                     for package_name in cached_packages.keys():
-                        if package_name.lower() not in installed_packages:
+                        base_name = package_name.split('[')[0] if '[' in package_name else package_name
+                        canonical_name = canonicalize_name(base_name)
+                        if canonical_name not in installed_packages:
                             missing_packages.append(package_name)
+                            self.logger.debug(f"Package '{package_name}' (base: '{base_name}', canonical: '{canonical_name}') not found in installed packages")
 
                     if not missing_packages:
-                        self.logger.info("All cached packages are already installed (no changes detected)")
+                        self.logger.info("✅ Cache hit: All dependencies are up-to-date and installed")
                     else:
-                        self.logger.info(f"Using cached dependency resolution but {len(missing_packages)} packages are missing, installing...")
+                        packages_were_installed = True
+                        self.logger.info(f"⚡ Cache hit: Dependencies resolved from cache, installing {len(missing_packages)} missing packages")
+                        self.logger.debug(f"Missing packages: {missing_packages}")
                         self.install_missing_packages(cached_packages, installed_packages)
                 else:
-                    self.logger.warning("Cache is empty, performing full resolution")
+                    self.logger.info("📦 Cache miss: No cached data found, performing full dependency resolution")
                     requirements_needing_resolution = requirements_to_process
             else:
-                self.logger.info(f"Resolving dependencies for {len(requirements_needing_resolution)} changed requirements")
+                changed_modules = [req[0] for req in requirements_needing_resolution]
+                self.logger.info(f"🔄 Requirements changed: Re-resolving dependencies for {len(requirements_needing_resolution)} module(s): {', '.join(changed_modules)}")
 
             if requirements_needing_resolution:
                 resolved_packages = {}
@@ -356,9 +377,18 @@ class DependencyManager:
                     'last_updated': str(os.path.getmtime(self.cache_dir)) if os.path.exists(self.cache_dir) else None
                 }
                 self.save_cache(cache_data)
-                self.logger.info("Dependency cache updated with incremental changes")
+                self.logger.info("💾 Cache updated: New dependency resolution results saved")
 
-            self.logger.info("Incremental dependency resolution completed successfully")
+            # Provide summary based on what happened
+            if not requirements_needing_resolution:
+                if cache_was_used and not packages_were_installed:
+                    self.logger.info("🎉 Dependencies verified successfully - no action needed")
+                elif cache_was_used and packages_were_installed:
+                    self.logger.info("✅ Dependencies resolved and installed successfully")
+                else:
+                    self.logger.info("📦 Full dependency resolution completed successfully")
+            else:
+                self.logger.info("🚀 Dependencies resolved and installed successfully")
 
         except Exception as e:
             self.logger.error(f"Error during dependency resolution: {e}", exc_info=True)

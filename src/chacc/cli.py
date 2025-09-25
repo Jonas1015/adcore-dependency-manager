@@ -88,6 +88,24 @@ def cmd_cache(args):
         print(f"Module caches: {len(cache.get('requirements_caches', {}))}")
 
 
+def cmd_demo(args):
+    """Run demonstration scripts to show ChaCC features."""
+    setup_logging(args.verbose)
+
+    if args.type == 'modules':
+        print("🚀 Running module separation demo...")
+        from .demo_module_separation import demo_module_separation
+        demo_module_separation()
+    elif args.type == 'cache':
+        print("🚀 Running cache structure demo...")
+        from .demo_cache_structure import demo_cache_structure
+        demo_cache_structure()
+    else:
+        print("Available demos:")
+        print("  cdm demo modules  - Show module-based dependency separation")
+        print("  cdm demo cache    - Show cache structure and organization")
+
+
 def create_parser():
     """Create the argument parser."""
     parser = argparse.ArgumentParser(
@@ -163,6 +181,17 @@ def create_parser():
         help="Show cache information"
     )
     cache_parser.set_defaults(func=cmd_cache)
+
+    demo_parser = subparsers.add_parser(
+        "demo",
+        help="Run demonstration scripts"
+    )
+    demo_parser.add_argument(
+        "type",
+        choices=["modules", "cache"],
+        help="Type of demo to run"
+    )
+    demo_parser.set_defaults(func=cmd_demo)
 
     return parser
 

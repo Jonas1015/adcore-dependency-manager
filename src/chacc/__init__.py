@@ -7,6 +7,7 @@ package installation for modular Python applications.
 
 from .manager import DependencyManager
 from .chacc import (
+    Config,
     re_resolve_dependencies,
     invalidate_dependency_cache,
     invalidate_module_cache,
@@ -19,11 +20,12 @@ from .chacc import (
     install_missing_packages,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "Jonas G Mwambimbi"
 __email__ = "jonasgeorge1015@gmail.com"
 
 __all__ = [
+    "Config",
     "DependencyManager",
     "re_resolve_dependencies",
     "invalidate_dependency_cache",
