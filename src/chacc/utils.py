@@ -8,7 +8,7 @@ import hashlib
 import logging
 import subprocess
 import sys
-from typing import Set
+from typing import Dict, Set
 
 try:
     from packaging.utils import canonicalize_name
@@ -32,7 +32,7 @@ def calculate_module_hash(module_name: str, requirements_content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def calculate_combined_requirements_hash(module_hashes: dict[str, str]) -> str:
+def calculate_combined_requirements_hash(module_hashes: Dict[str, str]) -> str:
     """Calculate hash of all module requirement hashes combined."""
     sorted_hashes = sorted(module_hashes.items())
     combined = "|".join(f"{name}:{hash}" for name, hash in sorted_hashes)
