@@ -5,10 +5,12 @@ Test script to demonstrate the cleaner Config-based API.
 import sys
 import logging
 import asyncio
+import pytest
 sys.path.insert(0, 'src')
 
 from chacc import Config, re_resolve_dependencies, resolve_module_dependencies
 
+@pytest.mark.asyncio
 async def test_config_api():
     """Test the cleaner Config-based API."""
     print("=== Testing Config-Based API ===")

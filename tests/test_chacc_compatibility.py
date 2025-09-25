@@ -37,14 +37,9 @@ def test_chacc_compatibility():
         print("✅ re_resolve_dependencies has correct signature")
 
         print("\n🎉 All Module based apps compatibility tests passed!")
-        return True
 
     except Exception as e:
         print(f"❌ Compatibility test failed: {e}")
         import traceback
         traceback.print_exc()
-        return False
-
-if __name__ == "__main__":
-    success = test_chacc_compatibility()
-    sys.exit(0 if success else 1)
+        raise AssertionError(f"Compatibility test failed: {e}")

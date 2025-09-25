@@ -5,12 +5,14 @@ Test script to check cache validation logging.
 import sys
 import logging
 import asyncio
+import pytest
 sys.path.insert(0, 'src')
 
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(name)s - %(message)s')
 
 from chacc.manager import DependencyManager
 
+@pytest.mark.asyncio
 async def test_cache_validation():
     """Test cache validation with logging."""
     print("=== Testing Cache Validation Logging ===")
