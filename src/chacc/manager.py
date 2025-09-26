@@ -16,6 +16,7 @@ from .utils import (
     default_logger,
     calculate_module_hash,
     calculate_combined_requirements_hash,
+    get_environment_hash,
     get_installed_packages,
     canonicalize_name
 )
@@ -70,6 +71,8 @@ class DependencyManager:
                         cache['requirements_caches'] = {}
                     if 'combined_hash' not in cache:
                         cache['combined_hash'] = None
+                    if 'environment_hash' not in cache:
+                        cache['environment_hash'] = None
                     return cache
             except (json.JSONDecodeError, IOError) as e:
                 self.logger.warning(f"Failed to load dependency cache: {e}")
@@ -77,6 +80,7 @@ class DependencyManager:
             'requirements_caches': {},
             'backbone_hash': None,
             'combined_hash': None,
+            'environment_hash': None,
             'resolved_packages': {},
             'last_updated': None
         }
@@ -97,6 +101,7 @@ class DependencyManager:
                 'requirements_caches': {},
                 'backbone_hash': None,
                 'combined_hash': None,
+                'environment_hash': None,
                 'resolved_packages': {},
                 'last_updated': None
             }
@@ -300,6 +305,14 @@ class DependencyManager:
 
         try:
             cache = self.load_cache()
+            current_env_hash = get_environment_hash()
+            cached_env_hash = cache.get('environment_hash')
+
+            if cached_env_hash and cached_env_hash != current_env_hash:
+                self.logger.info("Environment changed (Python version/OS), invalidating cache")
+                self.invalidate_cache()
+                cache = self.load_cache()
+
             req_caches = cache.get('requirements_caches', {})
 
             current_req_hashes = {}
@@ -373,13 +386,13 @@ class DependencyManager:
                 cache_data = {
                     'requirements_caches': req_caches,
                     'combined_hash': combined_hash,
+                    'environment_hash': current_env_hash,
                     'resolved_packages': all_resolved_packages,
                     'last_updated': str(os.path.getmtime(self.cache_dir)) if os.path.exists(self.cache_dir) else None
                 }
                 self.save_cache(cache_data)
                 self.logger.info("💾 Cache updated: New dependency resolution results saved")
 
-            # Provide summary based on what happened
             if not requirements_needing_resolution:
                 if cache_was_used and not packages_were_installed:
                     self.logger.info("🎉 Dependencies verified successfully - no action needed")
