@@ -1,5 +1,3 @@
-Here is an improved and rearranged version of the documentation, designed to be clear and accessible even for new Python users.
-
 ***
 
 # ChaCC Dependency Manager
