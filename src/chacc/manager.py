@@ -128,9 +128,10 @@ class DependencyManager:
         except Exception as e:
             self.logger.warning(f"Failed to invalidate cache for module {module_name}: {e}")
 
-    def resolve_module_dependencies(self, module_name: str, requirements_content: str) -> Dict[str, str]:
+    def resolve_module_dependencies(self, module_name: str, requirements_content: str, upgrade: bool = False) -> Dict[str, str]:
         """Resolve dependencies for a specific module."""
-        self.logger.info(f"Resolving dependencies for module: {module_name}")
+        action = "Upgrading" if upgrade else "Resolving"
+        self.logger.info(f"{action} dependencies for module: {module_name}")
 
         if self.pre_resolve_hook:
             try:
@@ -144,15 +145,20 @@ class DependencyManager:
             with open(temp_req_file, "w") as f:
                 f.write(requirements_content)
 
-            result = subprocess.run([
+            cmd = [
                 sys.executable, '-m', 'piptools', 'compile',
                 '--output-file', f"{temp_req_file}.lock",
-                '--allow-unsafe',
-                temp_req_file
-            ], capture_output=True, text=True)
+                '--allow-unsafe'
+            ]
+            if upgrade:
+                cmd.append('--upgrade')
+
+            cmd.append(temp_req_file)
+
+            result = subprocess.run(cmd, capture_output=True, text=True)
 
             if result.returncode != 0:
-                self.logger.error(f"Failed to resolve dependencies for {module_name}: {result.stderr}")
+                self.logger.error(f"Failed to {action.lower()} dependencies for {module_name}: {result.stderr}")
                 return {}
 
             resolved_packages = {}
@@ -168,7 +174,7 @@ class DependencyManager:
                                 version = parts[1]
                                 resolved_packages[package_name] = f"=={version}"
 
-            self.logger.info(f"Resolved {len(resolved_packages)} packages for {module_name}")
+            self.logger.info(f"{action} {len(resolved_packages)} packages for {module_name}")
 
             if self.post_resolve_hook:
                 try:
@@ -179,7 +185,7 @@ class DependencyManager:
             return resolved_packages
 
         except Exception as e:
-            self.logger.error(f"Error resolving dependencies for {module_name}: {e}")
+            self.logger.error(f"Error {action.lower()} dependencies for {module_name}: {e}")
             return {}
         finally:
             for file in [temp_req_file, f"{temp_req_file}.lock"]:
@@ -363,7 +369,7 @@ class DependencyManager:
                 resolved_packages = {}
                 for req_name, req_content in requirements_needing_resolution:
                     if req_content.strip():
-                        req_packages = self.resolve_module_dependencies(req_name, req_content)
+                        req_packages = self.resolve_module_dependencies(req_name, req_content, upgrade=False)
                         resolved_packages.update(req_packages)
 
                     req_caches[req_name] = {
@@ -405,4 +411,84 @@ class DependencyManager:
 
         except Exception as e:
             self.logger.error(f"Error during dependency resolution: {e}", exc_info=True)
+            raise
+
+    async def upgrade_dependencies(
+        self,
+        modules_requirements: Optional[Dict[str, str]] = None,
+        requirements_file_pattern: str = "requirements.txt",
+        search_dirs: Optional[List[str]] = None
+    ):
+        """
+        Upgrade dependencies to their latest versions.
+
+        This method forces resolution of all dependencies to their latest versions,
+        invalidates the cache, and installs the upgraded packages.
+
+        Args:
+            modules_requirements: Dict of name -> requirements_content
+                                   If None, auto-discovers from filesystem
+            requirements_file_pattern: Glob pattern for requirements files (default: "requirements.txt")
+            search_dirs: List of directories to search for requirements files (default: current dir)
+        """
+        self.logger.info("Starting dependency upgrade...")
+
+        # Force cache invalidation for upgrades
+        self.invalidate_cache()
+
+        if modules_requirements:
+            requirements_to_process = list(modules_requirements.items())
+        else:
+            requirements_to_process = []
+            search_dirs = search_dirs or ["."]
+
+            for base_dir in search_dirs:
+                if os.path.exists(base_dir):
+                    pattern = os.path.join(base_dir, requirements_file_pattern)
+                    req_files = glob.glob(pattern)
+
+                    for req_file in req_files:
+                        try:
+                            with open(req_file, 'r') as f:
+                                req_content = f.read().strip()
+
+                            if req_content:
+                                filename = os.path.basename(req_file)
+                                req_name = os.path.splitext(filename)[0]
+                                requirements_to_process.append((req_name, req_content))
+                                self.logger.info(f"Discovered requirements file: {req_file}")
+
+                        except Exception as e:
+                            self.logger.warning(f"Failed to read requirements file {req_file}: {e}")
+
+            if not requirements_to_process:
+                self.logger.info(f"No requirements files found matching pattern: {requirements_file_pattern} in {search_dirs}")
+                return
+
+        try:
+            resolved_packages = {}
+            for req_name, req_content in requirements_to_process:
+                if req_content.strip():
+                    req_packages = self.resolve_module_dependencies(req_name, req_content, upgrade=True)
+                    resolved_packages.update(req_packages)
+
+            if resolved_packages:
+                installed_packages = get_installed_packages()
+                self.install_missing_packages(resolved_packages, installed_packages)
+
+                # Save updated cache
+                cache_data = {
+                    'requirements_caches': {},
+                    'combined_hash': None,
+                    'environment_hash': get_environment_hash(),
+                    'resolved_packages': resolved_packages,
+                    'last_updated': str(os.path.getmtime(self.cache_dir)) if os.path.exists(self.cache_dir) else None
+                }
+                self.save_cache(cache_data)
+                self.logger.info("💾 Cache updated with upgraded dependencies")
+
+            self.logger.info("🚀 Dependencies upgraded successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error during dependency upgrade: {e}", exc_info=True)
             raise

@@ -87,6 +87,28 @@ def cmd_cache(args):
         print(f"Module caches: {len(cache.get('requirements_caches', {}))}")
 
 
+def cmd_upgrade(args):
+    """Upgrade packages to their latest versions."""
+    setup_logging(args.verbose)
+
+    dm = DependencyManager(cache_dir=args.cache_dir)
+
+    if args.requirements:
+        # Upgrade from requirements file
+        print(f"Upgrading from {args.requirements}...")
+        requirements = {args.requirements: Path(args.requirements).read_text()}
+        asyncio.run(dm.upgrade_dependencies(requirements))
+    elif args.packages:
+        print(f"Upgrading packages: {', '.join(args.packages)}...")
+        requirements = {"cli": "\n".join(args.packages)}
+        asyncio.run(dm.upgrade_dependencies(requirements))
+    else:
+        print("Auto-discovering and upgrading requirements...")
+        asyncio.run(dm.upgrade_dependencies())
+
+    print("✅ Upgrade completed")
+
+
 def cmd_demo(args):
     """Run demonstration scripts to show ChaCC features."""
     setup_logging(args.verbose)
@@ -140,6 +162,21 @@ def create_parser():
         help="Install from requirements file"
     )
     install_parser.set_defaults(func=cmd_install)
+
+    upgrade_parser = subparsers.add_parser(
+        "upgrade",
+        help="Upgrade packages to their latest versions"
+    )
+    upgrade_parser.add_argument(
+        "packages",
+        nargs="*",
+        help="Packages to upgrade"
+    )
+    upgrade_parser.add_argument(
+        "-r", "--requirements",
+        help="Upgrade from requirements file"
+    )
+    upgrade_parser.set_defaults(func=cmd_upgrade)
 
     resolve_parser = subparsers.add_parser(
         "resolve",
