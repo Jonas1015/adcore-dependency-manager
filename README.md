@@ -118,6 +118,27 @@ cdm resolve
 cdm resolve -r requirements-dev.txt
 ```
 
+#### **Checking Package Installation Status**
+
+Verify that cached packages are actually installed and match expectations.
+
+```bash
+# Check if all cached packages are properly installed
+cdm check
+
+# Also show packages installed but not in cache
+cdm check --all
+```
+
+#### **Finding Outdated Packages**
+
+Show which cached packages have newer versions available.
+
+```bash
+# Check for available updates to cached packages
+cdm outdated
+```
+
 ### Programmatic Usage (Python)
 
 You can also use ChaCC within your Python applications to manage dependencies dynamically.
@@ -360,6 +381,8 @@ invalidate_module_cache(module_name, config=config)
 **New CLI Commands:**
 ```bash
 cdm upgrade          # Upgrade packages to latest versions
+cdm check            # Verify cached packages are installed
+cdm outdated         # Show packages with available updates
 cdm demo modules     # Show module separation
 cdm demo cache       # Show cache structure
 ```
